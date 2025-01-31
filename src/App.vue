@@ -1,25 +1,40 @@
 <script setup lang="ts">
 import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
+import Dropdown from './components/Dropdown.vue'
+import { ref } from 'vue'
+
+const languages = [
+    { label: 'Russian', value: 'russian' },
+    { label: 'English', value: 'english' },
+    { label: 'Italian', value: 'italian' },
+    { label: 'German', value: 'german' },
+    { label: 'Korean', value: 'korean' },
+]
+const language = ref(languages[0])
 </script>
 
 <template>
     <header>
-        <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+        <h1 class="green">amoCRM deals. For <span class="bold">you</span>. <i>Now</i>.</h1>
+        <!-- <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
 
         <div class="wrapper">
             <HelloWorld msg="You did it!" />
-        </div>
+        </div> -->
     </header>
 
     <main>
-        <TheWelcome />
+        <!-- <TheWelcome /> -->
+
+        <Dropdown label="Language" closeOnSelect v-model:selected="language" :data="languages" />
     </main>
 </template>
 
 <style scoped>
 header {
     line-height: 1.5;
+    font-size: var(--font-size-xl);
 }
 
 .logo {
@@ -38,7 +53,7 @@ header {
         margin: 0 2rem 0 0;
     }
 
-    header .wrapper {
+    header .dropdown {
         display: flex;
         place-items: flex-start;
         flex-wrap: wrap;
