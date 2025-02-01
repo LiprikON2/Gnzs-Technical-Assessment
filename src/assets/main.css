@@ -11,6 +11,10 @@
     font-weight: var(--font-weight-xl);
 }
 
+button {
+    min-width: fit-content;
+}
+
 a,
 .green {
     text-decoration: none;

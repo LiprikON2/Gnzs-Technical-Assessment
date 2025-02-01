@@ -10,6 +10,8 @@ const props = defineProps<{
     label: string
     data: Item[]
     closeOnSelect?: boolean
+    /* max-height of dropdown */
+    mah?: number
 }>()
 
 const open = defineModel('open', {
@@ -51,24 +53,27 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <form @submit.prevent v-bind:data-open="open" ref="dropdownRef">
+    <form @submit.prevent v-bind:data-open="open" ref="dropdownRef" :style="{ '--mah': props.mah }">
         <label>{{ label }}</label>
+
         <div class="input" @click="() => toggleOpen()">
             <input readonly type="text" autocomplete="off" v-model="selected.label" />
         </div>
 
-        <div class="dropdown">
-            <ul @click="handleSelectItem">
-                <li
-                    v-for="(item, index) in data"
-                    :key="item.value"
-                    :value="item.value"
-                    :data-active="item.value === selected.value"
-                    :style="{ '--index': index }"
-                >
-                    {{ item.label }}
-                </li>
-            </ul>
+        <div class="dropdown-container subtle-scrollbar">
+            <div class="dropdown">
+                <ul @click="handleSelectItem">
+                    <li
+                        v-for="(item, index) in data"
+                        :key="item.value"
+                        :value="item.value"
+                        :data-active="item.value === selected.value"
+                        :style="{ '--index': index }"
+                    >
+                        {{ item.label }}
+                    </li>
+                </ul>
+            </div>
         </div>
     </form>
 </template>
@@ -78,6 +83,10 @@ form {
     --dd-padding: var(--spacing-xxs);
     --dd-border-radius: var(--radius-default);
     --dd-font-size: var(--font-size-sm);
+    --dd-anim-timing-in: 0.5s;
+    --dd-anim-timing-out: 0.25s;
+    --dd-max-height: calc(var(--mah) * 0.0625rem);
+
     max-width: fit-content;
     position: relative;
 }
@@ -95,10 +104,33 @@ input,
     z-index: 10;
 
     input {
-        font-size: var(--dd-font-size);
+        width: 100%;
+        font-size: inherit;
         border: none;
         padding: var(--dd-padding);
         border-radius: var(--dd-border-radius);
+
+        color: var(--color-bg-0);
+        background-color: var(--color-fg-0);
+    }
+
+    &::before {
+        content: '';
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        z-index: -1;
+        border-radius: 100% 100% 0 0;
+        background-color: var(--color-bg-0);
+
+        opacity: 0;
+    }
+
+    form[data-open='true'] &::before {
+        animation: fadeIn ease var(--dd-anim-timing-in) forwards;
+    }
+    form[data-open='false'] &::before {
+        animation: fadeOut ease var(--dd-anim-timing-out) forwards;
     }
 
     &::after {
@@ -118,37 +150,65 @@ input,
         transform: rotate(180deg);
     }
 }
-
-.dropdown {
+.dropdown-container {
+    --padding: var(--spacing-xxs);
     position: absolute;
     width: 100%;
 
-    padding-block: var(--spacing-xxs);
-    display: none;
-    font-size: var(--dd-font-size);
+    overflow: hidden;
+
+    border-radius: 0 0 var(--dd-border-radius) var(--dd-border-radius);
+
+    opacity: 0;
 
     form[data-open='true'] & {
-        display: block;
+        animation: fadeIn ease var(--dd-anim-timing-out) forwards;
+    }
+    form[data-open='false'] & {
+        animation: fadeOut ease var(--dd-anim-timing-out) forwards;
+    }
+}
+
+.dropdown {
+    padding-block: var(--padding);
+    font-size: var(--dd-font-size);
+    background-color: var(--color-bg-0);
+    max-height: var(--dd-max-height, unset);
+
+    overflow-x: clip;
+    overflow-y: auto;
+
+    /* ::-webkit-scrollbar-track {
+        background: yellow;
+    } */
+
+    form[data-open='true'] & {
+        pointer-events: unset;
+        animation: fadeInMoveY ease var(--dd-anim-timing-out) forwards;
+        opacity: 1;
+    }
+    form[data-open='false'] & {
+        pointer-events: none;
+        animation: fadeOutMoveY ease var(--dd-anim-timing-out) forwards;
+        opacity: 0;
     }
 }
 ul {
     padding: 0;
-
+    /* 
     &::before {
         content: '';
         position: absolute;
         inset: 0;
         width: 100%;
-        height: calc(100% + var(--dd-font-size));
-        margin-top: calc(-1 * var(--dd-font-size));
-        padding-top: var(--dd-font-size);
+        height: 100%;
 
-        border-radius: var(--dd-border-radius);
         background-color: var(--color-bg-0);
+
         opacity: 0;
-        animation: fadeIn ease 0.5s forwards;
+        animation: fadeIn ease var(--dd-anim-timing-out) forwards;
         animation-delay: 0.3s;
-    }
+    } */
 }
 
 li {
@@ -170,12 +230,15 @@ li {
     }
 
     form[data-open='true'] & {
-        animation: fadeInMove ease 0.5s forwards;
+        animation: fadeInMoveX ease var(--dd-anim-timing-out) forwards;
         animation-delay: calc(var(--index) * 0.1s);
+    }
+    form[data-open='false'] & {
+        animation: fadeOut ease var(--dd-anim-timing-in) forwards;
     }
 }
 
-@keyframes fadeInMove {
+@keyframes fadeInMoveX {
     0% {
         opacity: 0;
         transform: translateX(25%);
@@ -192,6 +255,34 @@ li {
     }
     100% {
         opacity: 1;
+    }
+}
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@keyframes fadeInMoveY {
+    0% {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0%);
+    }
+}
+@keyframes fadeOutMoveY {
+    0% {
+        opacity: 1;
+        transform: translateY(0%);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-100%);
     }
 }
 </style>

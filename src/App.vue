@@ -10,6 +10,23 @@ const languages = [
     { label: 'Italian', value: 'italian' },
     { label: 'German', value: 'german' },
     { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
 ]
 const language = ref(languages[0])
 </script>
@@ -27,7 +44,14 @@ const language = ref(languages[0])
     <main>
         <!-- <TheWelcome /> -->
 
-        <Dropdown label="Language" closeOnSelect v-model:selected="language" :data="languages" />
+        <Dropdown
+            label="Language"
+            closeOnSelect
+            v-model:selected="language"
+            :data="languages"
+            :mah="120"
+        />
+        test
     </main>
 </template>
 

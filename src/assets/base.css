@@ -66,12 +66,18 @@
 }
 
 :root {
+    color-scheme: dark;
+
     --color-accent: hsla(160, 100%, 37%, 1);
 
     --color-bg-0: #181818;
     --color-bg-1: #181818ef;
     --color-bg-2: #181818d3;
     --color-bg-3: #181818a9;
+
+    --color-fg-0: #ffffff;
+    --color-fg-1: #f8f8f8;
+    --color-fg-2: #f2f2f2;
 }
 
 /* color palette from <https://github.com/vuejs/theme> */
@@ -159,4 +165,19 @@ body {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+/* ref: https://stackoverflow.com/a/21684424 */
+
+.subtle-scrollbar {
+    ::-webkit-scrollbar {
+        width: 14px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        border: 4px solid rgba(0, 0, 0, 0);
+        background-clip: padding-box;
+        border-radius: 9999px;
+        background-color: #aaaaaa;
+    }
 }
