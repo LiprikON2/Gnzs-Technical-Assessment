@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, useId, watch } from 'vue'
 
 interface Item {
     label: string
     value: string
 }
+
+const labelId = useId()
+const listboxId = useId()
+
+const dropdownRef = ref<HTMLDivElement>()
+const inputRef = ref<HTMLUListElement>()
+const listboxRef = ref<HTMLUListElement>()
 
 const props = defineProps<{
     label: string
@@ -17,7 +24,11 @@ const props = defineProps<{
 const open = defineModel('open', {
     default: false,
 })
-const selected = defineModel<Item>('selected', {
+const focus = defineModel<number | null>('focus', {
+    default: null,
+})
+
+const active = defineModel<Item>('active', {
     default: { label: '', value: '' },
 })
 
@@ -30,44 +41,145 @@ const handleSelectItem = (e: Event) => {
     const item = props.data.find((item) => item.value === li.getAttribute('value'))
     if (!item) return
 
-    selected.value = item
+    active.value = item
 
     if (props.closeOnSelect) toggleOpen(false)
 }
 
-const dropdownRef = ref<HTMLDivElement>()
 const handleClickOutside = (e: MouseEvent) => {
-    console.log('click outside')
     if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
         open.value = false
     }
 }
 
+const handleKeydown = (e: KeyboardEvent) => {
+    if (!inputRef.value?.contains(document.activeElement)) return
+
+    const currentFocus = focus.value ?? 0
+
+    if (open.value) {
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault()
+                focus.value = Math.min(currentFocus + 1, props.data.length - 1)
+                scrollToNext('forwards')
+                break
+
+            case 'ArrowUp':
+                e.preventDefault()
+                focus.value = Math.max(currentFocus - 1, 0)
+                scrollToNext('backwards')
+                break
+
+            case 'Enter':
+                e.preventDefault()
+                if (currentFocus >= 0) {
+                    const selectedItem = props.data[currentFocus]
+                    active.value = selectedItem
+                    toggleOpen(false)
+                }
+                break
+
+            case ' ':
+            case 'Escape':
+                e.preventDefault()
+                toggleOpen(false)
+                break
+        }
+    } else {
+        // When closed, handle opening
+        switch (e.key) {
+            case 'Enter':
+            case ' ':
+                e.preventDefault()
+                toggleOpen(true)
+                focus.value = currentFocus
+                break
+        }
+    }
+}
+
+// Scroll focused option into view
+const scrollToNext = (direction: 'forwards' | 'backwards') => {
+    if (!listboxRef.value) return
+
+    const prevOption = listboxRef.value.querySelector('li[data-focused="true"]')
+    const focusedOption =
+        direction === 'forwards'
+            ? prevOption?.nextElementSibling
+            : prevOption?.previousElementSibling
+    if (!focusedOption) return
+
+    if (focusedOption) {
+        focusedOption.scrollIntoView({
+            block: 'nearest',
+            inline: 'nearest',
+        })
+    }
+}
+
 onMounted(() => {
     document.addEventListener('click', handleClickOutside)
+    document.addEventListener('keydown', handleKeydown)
 })
 
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
+    document.removeEventListener('keydown', handleKeydown)
+})
+
+// Reset focus when dropdown closes
+watch(open, (newValue) => {
+    if (!newValue) {
+        focus.value = null
+    }
 })
 </script>
 
 <template>
     <form @submit.prevent v-bind:data-open="open" ref="dropdownRef" :style="{ '--mah': props.mah }">
-        <label>{{ label }}</label>
+        <label :for="labelId">{{ label }}</label>
 
-        <div class="input" @click="() => toggleOpen()">
-            <input readonly type="text" autocomplete="off" v-model="selected.label" />
+        <div
+            ref="inputRef"
+            class="input"
+            role="button"
+            aria-haspopup="listbox"
+            :aria-expanded="open"
+            :aria-controls="listboxId"
+            @click="() => toggleOpen()"
+            tabindex="0"
+        >
+            <input
+                tabindex="-1"
+                :id="labelId"
+                readonly
+                type="text"
+                autocomplete="off"
+                v-model="active.label"
+            />
         </div>
 
         <div class="dropdown-container subtle-scrollbar">
-            <div class="dropdown">
-                <ul @click="handleSelectItem">
+            <div class="dropdown" tabindex="-1">
+                <ul
+                    ref="listboxRef"
+                    role="listbox"
+                    :id="listboxId"
+                    :aria-label="`${label} options`"
+                    @click="handleSelectItem"
+                    tabindex="-1"
+                    :style="{ '--count': data.length }"
+                >
                     <li
+                        tabindex="-1"
+                        role="option"
                         v-for="(item, index) in data"
                         :key="item.value"
                         :value="item.value"
-                        :data-active="item.value === selected.value"
+                        :aria-selected="item.value === active.value"
+                        :data-active="item.value === active.value"
+                        :data-focused="index === focus"
                         :style="{ '--index': index }"
                     >
                         {{ item.label }}
@@ -102,6 +214,8 @@ input,
     appearance: none;
     position: relative;
     z-index: 10;
+    border-radius: var(--dd-border-radius);
+    outline-offset: -2px;
 
     input {
         width: 100%;
@@ -178,10 +292,6 @@ input,
     overflow-x: clip;
     overflow-y: auto;
 
-    /* ::-webkit-scrollbar-track {
-        background: yellow;
-    } */
-
     form[data-open='true'] & {
         pointer-events: unset;
         animation: fadeInMoveY ease var(--dd-anim-timing-out) forwards;
@@ -194,27 +304,17 @@ input,
     }
 }
 ul {
+    --count: 0;
     padding: 0;
-    /* 
-    &::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-
-        background-color: var(--color-bg-0);
-
-        opacity: 0;
-        animation: fadeIn ease var(--dd-anim-timing-out) forwards;
-        animation-delay: 0.3s;
-    } */
 }
 
 li {
+    --index: 0;
+
     list-style: none;
     padding-inline: var(--spacing-xxxs);
     opacity: 0;
+    border-radius: var(--dd-border-radius);
 
     &[data-active='true'] {
         color: var(--color-accent);
@@ -228,10 +328,14 @@ li {
     &[data-active='true']::before {
         visibility: visible;
     }
+    &[data-focused='true'] {
+        outline: 2px solid var(--color-accent);
+        outline-offset: -2px;
+    }
 
     form[data-open='true'] & {
         animation: fadeInMoveX ease var(--dd-anim-timing-out) forwards;
-        animation-delay: calc(var(--index) * 0.1s);
+        animation-delay: calc(var(--index) * var(--dd-anim-timing-out) / var(--count));
     }
     form[data-open='false'] & {
         animation: fadeOut ease var(--dd-anim-timing-in) forwards;
@@ -248,7 +352,6 @@ li {
         transform: translateX(0%);
     }
 }
-
 @keyframes fadeIn {
     0% {
         opacity: 0;

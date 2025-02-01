@@ -9,24 +9,24 @@ const languages = [
     { label: 'English', value: 'english' },
     { label: 'Italian', value: 'italian' },
     { label: 'German', value: 'german' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
+    // { label: 'Korean', value: 'korean' },
 ]
 const language = ref(languages[0])
 </script>
@@ -44,14 +44,15 @@ const language = ref(languages[0])
     <main>
         <!-- <TheWelcome /> -->
 
+        <button>test</button>
         <Dropdown
             label="Language"
             closeOnSelect
-            v-model:selected="language"
+            v-model:active="language"
             :data="languages"
             :mah="120"
         />
-        test
+        <button>test</button>
     </main>
 </template>
 

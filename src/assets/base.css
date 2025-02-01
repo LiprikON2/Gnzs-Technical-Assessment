@@ -68,6 +68,7 @@
 :root {
     color-scheme: dark;
 
+    --outline-style: 2px solid var(--color-accent);
     --color-accent: hsla(160, 100%, 37%, 1);
 
     --color-bg-0: #181818;
@@ -165,19 +166,4 @@ body {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
-
-/* ref: https://stackoverflow.com/a/21684424 */
-
-.subtle-scrollbar {
-    ::-webkit-scrollbar {
-        width: 14px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        border: 4px solid rgba(0, 0, 0, 0);
-        background-clip: padding-box;
-        border-radius: 9999px;
-        background-color: #aaaaaa;
-    }
 }

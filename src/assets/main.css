@@ -23,6 +23,24 @@ a,
     padding: 3px;
 }
 
+*:focus {
+    outline: var(--outline-style);
+}
+
+/* ref: https://stackoverflow.com/a/21684424 */
+.subtle-scrollbar {
+    ::-webkit-scrollbar {
+        width: 14px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        border: 4px solid rgba(0, 0, 0, 0);
+        background-clip: padding-box;
+        border-radius: 9999px;
+        background-color: #aaaaaa;
+    }
+}
+
 @media (hover: hover) {
     a:hover {
         background-color: hsla(160, 100%, 37%, 0.2);
