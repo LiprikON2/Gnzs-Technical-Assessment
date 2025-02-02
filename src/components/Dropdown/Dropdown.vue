@@ -1,143 +1,63 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, useId, watch } from 'vue'
+import { ref, useId, useTemplateRef } from 'vue'
 
-interface Item {
-    label: string
-    value: string
-}
-
-const labelId = useId()
-const listboxId = useId()
-
-const dropdownRef = ref<HTMLDivElement>()
-const inputRef = ref<HTMLUListElement>()
-const listboxRef = ref<HTMLUListElement>()
+import { useClickOutside } from '@/composables'
+import type { Item } from './Dropdown.types'
+import { useDropdownControl } from './composables'
 
 const props = defineProps<{
     label: string
-    data: Item[]
-    closeOnSelect?: boolean
+    items: Item[]
     /* max-height of dropdown */
     mah?: number
 }>()
 
-const open = defineModel('open', {
-    default: false,
-})
-const focus = defineModel<number | null>('focus', {
-    default: null,
-})
+const labelId = useId()
+const listboxId = useId()
+
+const inputRef = ref<HTMLUListElement | null>(null)
+
+const handleItemSelection = (e: Event) => {
+    const li = (e.target as HTMLLIElement).closest('li')
+    if (!li) return
+
+    const item = props.items.find((item) => item.value === li.getAttribute('value'))
+    if (!item) return
+
+    active.value = item
+    open.value = false
+}
+
+const dropdownRef = useClickOutside<HTMLDivElement>(() => closeDropdown(false))
 
 const active = defineModel<Item>('active', {
     default: { label: '', value: '' },
 })
 
-const toggleOpen = (value?: boolean) => {
-    open.value = value === undefined ? !open.value : value
-}
-const handleSelectItem = (e: Event) => {
-    const li = e.target as HTMLLIElement
+const itemRefs = useTemplateRef('items')
 
-    const item = props.data.find((item) => item.value === li.getAttribute('value'))
-    if (!item) return
-
-    active.value = item
-
-    if (props.closeOnSelect) toggleOpen(false)
-}
-
-const handleClickOutside = (e: MouseEvent) => {
-    if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
-        open.value = false
-    }
-}
-
-const handleKeydown = (e: KeyboardEvent) => {
-    if (!inputRef.value?.contains(document.activeElement)) return
-
-    const currentFocus = focus.value ?? 0
-
-    if (open.value) {
-        switch (e.key) {
-            case 'ArrowDown':
-                e.preventDefault()
-                focus.value = Math.min(currentFocus + 1, props.data.length - 1)
-                scrollToNext('forwards')
-                break
-
-            case 'ArrowUp':
-                e.preventDefault()
-                focus.value = Math.max(currentFocus - 1, 0)
-                scrollToNext('backwards')
-                break
-
-            case 'Enter':
-                e.preventDefault()
-                if (currentFocus >= 0) {
-                    const selectedItem = props.data[currentFocus]
-                    active.value = selectedItem
-                    toggleOpen(false)
-                }
-                break
-
-            case ' ':
-            case 'Escape':
-                e.preventDefault()
-                toggleOpen(false)
-                break
-        }
-    } else {
-        // When closed, handle opening
-        switch (e.key) {
-            case 'Enter':
-            case ' ':
-                e.preventDefault()
-                toggleOpen(true)
-                focus.value = currentFocus
-                break
-        }
-    }
-}
-
-// Scroll focused option into view
-const scrollToNext = (direction: 'forwards' | 'backwards') => {
-    if (!listboxRef.value) return
-
-    const prevOption = listboxRef.value.querySelector('li[data-focused="true"]')
-    const focusedOption =
-        direction === 'forwards'
-            ? prevOption?.nextElementSibling
-            : prevOption?.previousElementSibling
-    if (!focusedOption) return
-
-    if (focusedOption) {
-        focusedOption.scrollIntoView({
-            block: 'nearest',
-            inline: 'nearest',
-        })
-    }
-}
-
-onMounted(() => {
-    document.addEventListener('click', handleClickOutside)
-    document.addEventListener('keydown', handleKeydown)
-})
-
-onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside)
-    document.removeEventListener('keydown', handleKeydown)
-})
-
-// Reset focus when dropdown closes
-watch(open, (newValue) => {
-    if (!newValue) {
-        focus.value = null
-    }
-})
+const { open, focus, scrollRef, listRef, navigateUp, navigateDown, toggleDropdown, closeDropdown } =
+    useDropdownControl({
+        active,
+        items: props.items,
+        getFocusedItem: () => {
+            return itemRefs.value?.find((item) => item.dataset.focused === 'true')
+        },
+    })
 </script>
 
 <template>
-    <form @submit.prevent v-bind:data-open="open" ref="dropdownRef" :style="{ '--mah': props.mah }">
+    <form
+        @submit.prevent
+        @keydown.prevent.enter="toggleDropdown(true)"
+        @keydown.prevent.space="toggleDropdown()"
+        @keydown.prevent.esc="closeDropdown()"
+        @keydown.prevent.up="navigateUp"
+        @keydown.prevent.down="navigateDown"
+        :data-open="open"
+        ref="dropdownRef"
+        :style="{ '--mah': props.mah }"
+    >
         <label :for="labelId">{{ label }}</label>
 
         <div
@@ -147,7 +67,7 @@ watch(open, (newValue) => {
             aria-haspopup="listbox"
             :aria-expanded="open"
             :aria-controls="listboxId"
-            @click="() => toggleOpen()"
+            @click="toggleDropdown()"
             tabindex="0"
         >
             <input
@@ -161,28 +81,29 @@ watch(open, (newValue) => {
         </div>
 
         <div class="dropdown-container subtle-scrollbar">
-            <div class="dropdown" tabindex="-1">
+            <div ref="scrollRef" class="dropdown" tabindex="-1">
                 <ul
-                    ref="listboxRef"
+                    ref="listRef"
                     role="listbox"
                     :id="listboxId"
                     :aria-label="`${label} options`"
-                    @click="handleSelectItem"
+                    @click="handleItemSelection"
                     tabindex="-1"
-                    :style="{ '--count': data.length }"
+                    :style="{ '--count': items.length }"
                 >
                     <li
                         tabindex="-1"
                         role="option"
-                        v-for="(item, index) in data"
+                        v-for="(item, index) in items"
                         :key="item.value"
                         :value="item.value"
+                        ref="items"
                         :aria-selected="item.value === active.value"
                         :data-active="item.value === active.value"
                         :data-focused="index === focus"
                         :style="{ '--index': index }"
                     >
-                        {{ item.label }}
+                        <span>{{ item.label }}</span>
                     </li>
                 </ul>
             </div>
@@ -201,6 +122,11 @@ form {
 
     max-width: fit-content;
     position: relative;
+
+    @media (prefers-reduced-motion) {
+        --dd-anim-timing-in: 0.01s;
+        --dd-anim-timing-out: 0.01s;
+    }
 }
 
 .input,
@@ -258,6 +184,10 @@ input,
 
         color: var(--dark-active-list);
         transition: transform 0.2s ease;
+
+        @media (prefers-reduced-motion) {
+            transition-duration: 0.01s;
+        }
     }
 
     form[data-open='true'] &::after {
@@ -310,6 +240,7 @@ ul {
 
 li {
     --index: 0;
+    outline: none;
 
     list-style: none;
     padding-inline: var(--spacing-xxxs);

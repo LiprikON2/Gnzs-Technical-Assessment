@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
-import Dropdown from './components/Dropdown.vue'
+import Dropdown from './components/Dropdown/Dropdown.vue'
 import { ref } from 'vue'
 
 const languages = [
@@ -9,24 +9,24 @@ const languages = [
     { label: 'English', value: 'english' },
     { label: 'Italian', value: 'italian' },
     { label: 'German', value: 'german' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
-    // { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
+    { label: 'Korean', value: 'korean' },
 ]
 const language = ref(languages[0])
 </script>
@@ -45,13 +45,7 @@ const language = ref(languages[0])
         <!-- <TheWelcome /> -->
 
         <button>test</button>
-        <Dropdown
-            label="Language"
-            closeOnSelect
-            v-model:active="language"
-            :data="languages"
-            :mah="120"
-        />
+        <Dropdown label="Language" v-model:active="language" :items="languages" :mah="120" />
         <button>test</button>
     </main>
 </template>
