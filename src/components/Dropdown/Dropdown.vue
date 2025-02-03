@@ -49,8 +49,8 @@ const { open, focus, scrollRef, listRef, navigateUp, navigateDown, toggleDropdow
 <template>
     <form
         @submit.prevent
-        @keydown.prevent.enter="toggleDropdown(true)"
-        @keydown.prevent.space="toggleDropdown()"
+        @keydown.prevent.enter="toggleDropdown({ selectOnClose: true, focusOnOpen: true })"
+        @keydown.prevent.space="toggleDropdown({ focusOnOpen: true })"
         @keydown.prevent.esc="closeDropdown()"
         @keydown.prevent.up="navigateUp"
         @keydown.prevent.down="navigateDown"
@@ -116,17 +116,22 @@ form {
     --dd-padding: var(--spacing-xxs);
     --dd-border-radius: var(--radius-default);
     --dd-font-size: var(--font-size-sm);
-    --dd-anim-timing-in: 0.5s;
-    --dd-anim-timing-out: 0.25s;
+    --dd-color: var(--color-background);
+    --dd-bg-color: var(--vt-c-white-soft);
+
     --dd-max-height: calc(var(--mah) * 0.0625rem);
 
-    max-width: fit-content;
-    position: relative;
+    --dd-anim-timing-in: 0.5s;
+    --dd-anim-timing-out: 0.25s;
 
     @media (prefers-reduced-motion) {
         --dd-anim-timing-in: 0.01s;
         --dd-anim-timing-out: 0.01s;
     }
+
+    max-width: fit-content;
+    position: relative;
+    z-index: 1;
 }
 
 .input,
@@ -141,17 +146,21 @@ input,
     position: relative;
     z-index: 10;
     border-radius: var(--dd-border-radius);
-    outline-offset: -2px;
+    outline-offset: calc(-1 * var(--outline-width));
 
     input {
         width: 100%;
-        font-size: inherit;
+        font-size: var(--dd-font-size);
         border: none;
         padding: var(--dd-padding);
         border-radius: var(--dd-border-radius);
 
-        color: var(--color-bg-0);
-        background-color: var(--color-fg-0);
+        color: var(--dd-color);
+        background-color: var(--dd-bg-color);
+
+        /* &::selection {
+            background: transparent;
+        } */
     }
 
     &::before {
@@ -161,7 +170,7 @@ input,
         position: absolute;
         z-index: -1;
         border-radius: 100% 100% 0 0;
-        background-color: var(--color-bg-0);
+        background-color: var(--dd-color);
 
         opacity: 0;
     }
@@ -182,7 +191,6 @@ input,
 
         padding: calc(var(--dd-padding) / 1.5);
 
-        color: var(--dark-active-list);
         transition: transform 0.2s ease;
 
         @media (prefers-reduced-motion) {
@@ -216,7 +224,7 @@ input,
 .dropdown {
     padding-block: var(--padding);
     font-size: var(--dd-font-size);
-    background-color: var(--color-bg-0);
+    background-color: var(--dd-color);
     max-height: var(--dd-max-height, unset);
 
     overflow-x: clip;
@@ -261,7 +269,7 @@ li {
     }
     &[data-focused='true'] {
         outline: 2px solid var(--color-accent);
-        outline-offset: -2px;
+        outline-offset: calc(-1 * var(--outline-width));
     }
 
     form[data-open='true'] & {
@@ -286,17 +294,21 @@ li {
 @keyframes fadeIn {
     0% {
         opacity: 0;
+        visibility: hidden;
     }
     100% {
         opacity: 1;
+        visibility: visible;
     }
 }
 @keyframes fadeOut {
     0% {
         opacity: 1;
+        visibility: visible;
     }
     100% {
         opacity: 0;
+        visibility: hidden;
     }
 }
 @keyframes fadeInMoveY {

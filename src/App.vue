@@ -2,6 +2,7 @@
 import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
 import Dropdown from './components/Dropdown/Dropdown.vue'
+import Button from './components/Button/Button.vue'
 import { ref } from 'vue'
 
 const languages = [
@@ -44,9 +45,10 @@ const language = ref(languages[0])
     <main>
         <!-- <TheWelcome /> -->
 
-        <button>test</button>
         <Dropdown label="Language" v-model:active="language" :items="languages" :mah="120" />
-        <button>test</button>
+        <Button>Test1</Button>
+        <Button disabled>test2</Button>
+        <Button variant="outline"> Test3 </Button>
     </main>
 </template>
 

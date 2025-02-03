@@ -27,17 +27,25 @@ export function useDropdownControl({ active, items, getFocusedItem }: DropdownCo
         scrollToFocused()
     }
 
-    const toggleDropdown = (selectOnClose: boolean = false) => {
-        open.value ? closeDropdown(selectOnClose) : openDropdown()
+    const toggleDropdown = (options?: { selectOnClose?: boolean; focusOnOpen?: boolean }) => {
+        const { selectOnClose, focusOnOpen } = {
+            ...{ selectOnClose: false, focusOnOpen: false },
+            ...options,
+        }
+
+        open.value ? closeDropdown(selectOnClose) : openDropdown(focusOnOpen)
     }
 
-    const openDropdown = () => {
-        const currentFocus = focus.value ?? 0
+    const openDropdown = (focusOnOpen = false) => {
         open.value = true
-        focus.value = currentFocus
+
+        if (focusOnOpen) {
+            const currentFocus = focus.value ?? 0
+            focus.value = currentFocus
+        }
     }
 
-    const closeDropdown = (selectOnClose: boolean = false) => {
+    const closeDropdown = (selectOnClose = false) => {
         const currentFocus = focus.value ?? 0
 
         if (selectOnClose && currentFocus >= 0) {

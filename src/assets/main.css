@@ -27,6 +27,10 @@ a,
     outline: var(--outline-style);
 }
 
+button:focus:not(:focus-visible) {
+    outline: none;
+}
+
 /* ref: https://stackoverflow.com/a/21684424 */
 .subtle-scrollbar {
     ::-webkit-scrollbar {
