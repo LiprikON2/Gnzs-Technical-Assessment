@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
 import Dropdown from '@/components/Dropdown/Dropdown.vue'
 import Button from '@/components/Button/Button.vue'
+import Table from '@/components/Table/Table.vue'
 import { ref } from 'vue'
 
 const languages = [
@@ -30,31 +29,52 @@ const languages = [
     { label: 'Korean', value: 'korean' },
 ]
 const language = ref(languages[0])
+
+const loading = ref(false)
+
+const handleMockLoad = () => {
+    console.log('handleMockLoad')
+    loading.value = true
+    setTimeout(() => {
+        loading.value = false
+    }, 2000)
+}
+
+const elements = [{ position: 1, name: 'Hydrogen', symbol: 'H', mass: 1.008 }]
 </script>
 
 <template>
     <header>
         <h1 class="green">amoCRM deals. For <span class="bold">you</span>. <i>Now</i>.</h1>
-        <!-- <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-        <div class="wrapper">
-            <HelloWorld msg="You did it!" />
-        </div> -->
     </header>
 
     <main>
-        <!-- <TheWelcome /> -->
-
         <Dropdown label="Language" v-model:active="language" :items="languages" :mah="120" />
-        <Button>Test1</Button>
-        <Button disabled>Test2</Button>
-        <Button variant="outline"> Test3 </Button>
-        <Button variant="outline" disabled> Test4 </Button>
-        <br />
-        <Button loading>Test1</Button>
-        <Button loading disabled>Test2</Button>
-        <Button loading variant="outline"> Test3 </Button>
-        <Button loading variant="outline" disabled> Test4 </Button>
+        <Button @click="handleMockLoad" :loading="loading">Test1</Button>
+        <Button @click="handleMockLoad" :loading="loading" disabled>Test2</Button>
+        <Button @click="handleMockLoad" :loading="loading" variant="secondary"> Test3 </Button>
+        <Button @click="handleMockLoad" :loading="loading" variant="secondary" disabled>
+            Test4
+        </Button>
+
+        <Table>
+            <Table.Thead>
+                <Table.Tr>
+                    <Table.Th>Element position</Table.Th>
+                    <Table.Th>Element name</Table.Th>
+                    <Table.Th>Symbol</Table.Th>
+                    <Table.Th>Atomic mass</Table.Th>
+                </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+                <Table.Tr v-for="element in elements" :key="element.name">
+                    <Table.Td>{{ element.position }}</Table.Td>
+                    <Table.Td>{{ element.name }}</Table.Td>
+                    <Table.Td>{{ element.symbol }}</Table.Td>
+                    <Table.Td>{{ element.mass }}</Table.Td>
+                </Table.Tr>
+            </Table.Tbody>
+        </Table>
     </main>
 </template>
 

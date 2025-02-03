@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, useId, useTemplateRef } from 'vue'
+import { computed, ref, useId, useTemplateRef } from 'vue'
 
 import { useClickOutside } from '@/composables'
 import type { Item } from './Dropdown.types'
@@ -12,7 +12,6 @@ const props = defineProps<{
     mah?: number
 }>()
 
-const labelId = useId()
 const listboxId = useId()
 
 const inputRef = ref<HTMLUListElement | null>(null)
@@ -44,6 +43,8 @@ const { open, focus, scrollRef, listRef, navigateUp, navigateDown, toggleDropdow
             return itemRefs.value?.find((item) => item.dataset.focused === 'true')
         },
     })
+
+const value = computed(() => `${props.label}: ${active.value.label}`)
 </script>
 
 <template>
@@ -58,8 +59,6 @@ const { open, focus, scrollRef, listRef, navigateUp, navigateDown, toggleDropdow
         ref="dropdownRef"
         :style="{ '--mah': props.mah }"
     >
-        <label :for="labelId">{{ label }}</label>
-
         <div
             ref="inputRef"
             class="input"
@@ -70,14 +69,7 @@ const { open, focus, scrollRef, listRef, navigateUp, navigateDown, toggleDropdow
             @click="toggleDropdown()"
             tabindex="0"
         >
-            <input
-                tabindex="-1"
-                :id="labelId"
-                readonly
-                type="text"
-                autocomplete="off"
-                v-model="active.label"
-            />
+            <input tabindex="-1" readonly type="text" autocomplete="off" v-model="value" />
         </div>
 
         <div class="dropdown-container subtle-scrollbar">
@@ -116,8 +108,11 @@ form {
     --dd-padding: var(--spacing-xxs);
     --dd-border-radius: var(--radius-default);
     --dd-font-size: var(--font-size-sm);
-    --dd-color: var(--color-background);
-    --dd-bg-color: var(--vt-c-white-soft);
+
+    --dd-color: var(--clr-brand-text-dark);
+    --dd-input-color: var(--clr-brand-background-1);
+    --dd-dropdown-color: var(--clr-brand-background-0);
+    --dd-border-color: var(--clr-brand-border);
 
     --dd-max-height: calc(var(--mah) * 0.0625rem);
 
@@ -128,10 +123,14 @@ form {
         --dd-anim-timing-in: 0.01s;
         --dd-anim-timing-out: 0.01s;
     }
+}
 
+form {
     max-width: fit-content;
     position: relative;
     z-index: 1;
+    border: 1px solid var(--dd-border-color);
+    border-radius: var(--dd-border-radius);
 }
 
 .input,
@@ -156,14 +155,14 @@ input,
         border-radius: var(--dd-border-radius);
 
         color: var(--dd-color);
-        background-color: var(--dd-bg-color);
+        background-color: var(--dd-input-color);
 
         /* &::selection {
             background: transparent;
         } */
     }
 
-    &::before {
+    /* &::before {
         content: '';
         width: 100%;
         height: 100%;
@@ -173,7 +172,7 @@ input,
         background-color: var(--dd-color);
 
         opacity: 0;
-    }
+    } */
 
     form[data-open='true'] &::before {
         animation: fadeIn ease var(--dd-anim-timing-in) forwards;
@@ -183,13 +182,21 @@ input,
     }
 
     &::after {
-        content: url(@/assets/chevron-down.svg);
+        --padding: 6px;
+        /* content: url(@/assets/chevron-down.svg); */
+        /* ref: https://stackoverflow.com/a/42317014 */
+        content: '';
+        -webkit-mask: url(@/assets/chevron-down.svg) no-repeat 50% 50%;
+        mask: url(@/assets/chevron-down.svg) no-repeat 50% 50%;
+        -webkit-mask-size: cover;
+        mask-size: cover;
+        background-color: currentColor;
+        margin: var(--padding);
+
         position: absolute;
         right: 0;
-        height: 100%;
+        height: calc(100% - var(--padding) * 2);
         aspect-ratio: 1;
-
-        padding: calc(var(--dd-padding) / 1.5);
 
         transition: transform 0.2s ease;
 
@@ -209,7 +216,9 @@ input,
 
     overflow: hidden;
 
-    border-radius: 0 0 var(--dd-border-radius) var(--dd-border-radius);
+    border: 1px solid var(--dd-border-color);
+    margin-top: var(--spacing-xxxs);
+    border-radius: var(--dd-border-radius);
 
     opacity: 0;
 
@@ -222,9 +231,8 @@ input,
 }
 
 .dropdown {
-    padding-block: var(--padding);
     font-size: var(--dd-font-size);
-    background-color: var(--dd-color);
+    background-color: var(--dd-dropdown-color);
     max-height: var(--dd-max-height, unset);
 
     overflow-x: clip;
@@ -253,10 +261,11 @@ li {
     list-style: none;
     padding-inline: var(--spacing-xxxs);
     opacity: 0;
-    border-radius: var(--dd-border-radius);
 
-    &[data-active='true'] {
+    &[data-active='true'],
+    &:hover {
         color: var(--color-accent);
+        background-color: var(--clr-brand-hover);
     }
 
     &::before {
@@ -268,7 +277,7 @@ li {
         visibility: visible;
     }
     &[data-focused='true'] {
-        outline: 2px solid var(--color-accent);
+        outline: var(--outline-style);
         outline-offset: calc(-1 * var(--outline-width));
     }
 

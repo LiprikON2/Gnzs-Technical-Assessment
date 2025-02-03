@@ -15,10 +15,9 @@ button {
     min-width: fit-content;
 }
 
-a,
-.green {
+a {
     text-decoration: none;
-    color: var(--color-accent);
+    color: var(--clr-brand-accent);
     transition: 0.4s;
     padding: 3px;
 }

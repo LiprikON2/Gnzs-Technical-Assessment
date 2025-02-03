@@ -2,7 +2,7 @@
 import Spinner from '@/components/Spinner/Spinner.vue'
 
 defineProps<{
-    variant?: 'default' | 'outline'
+    variant?: 'default' | 'secondary'
     onClick?: (e: Event) => void
     loading?: boolean
     disabled?: boolean
@@ -12,7 +12,7 @@ defineProps<{
 <template>
     <button
         :disabled="disabled || loading"
-        :class="{ outline: variant === 'outline', disabled, loading }"
+        :class="{ secondary: variant === 'secondary', disabled, loading }"
         @click="onClick"
     >
         <Spinner class="spinner" v-if="loading" />
@@ -24,21 +24,23 @@ defineProps<{
 
 <style scoped>
 button {
-    --b-color: var(--color-background);
-    --b-color-disabled: var(--color-disabled);
+    --btn-color: var(--clr-brand-text-light);
+    --btn-color-disabled: var(--clr-brand-text-dark);
 
-    --b-bg-color: var(--color-soft);
-    --b-bg-color-disabled: var(--color-background-disabled);
-    --b-bg-color-active: var(--color-accent);
+    --btn-bg-color: var(--clr-brand-accent);
+    --btn-bg-color-disabled: var(--clr-brand-disabled);
 
-    --b-border-color: transparent;
-    --b-font-size: var(--font-size-sm);
-    --b-transition-timing: 0.1s;
+    --btn-bg-color-hover: var(--clr-brand-accent-hover);
+    --btn-border-color: var(--clr-brand-accent-hover);
+    --btn-border-color-disabled: var(--clr-brand-border);
+    --btn-font-size: var(--font-size-sm);
+    --btn-transition-timing: 0.1s;
 
     @media (prefers-reduced-motion) {
-        --b-transition-timing: 0.01s;
+        --btn-transition-timing: 0.01s;
     }
-
+}
+button {
     all: unset;
     box-sizing: border-box;
     cursor: pointer;
@@ -49,33 +51,30 @@ button {
     display: inline-block;
 
     line-height: 1.1;
-    outline-offset: calc(-1 * var(--outline-width));
+    outline-offset: calc(0.5 * var(--outline-width));
     vertical-align: middle;
     text-align: center;
 
-    border: 2px solid var(--b-border-color);
+    border: 1px solid var(--btn-border-color);
     border-radius: var(--radius-default);
-    color: var(--b-color);
-    background-color: var(--b-bg-color);
+    color: var(--btn-color);
+    background-color: var(--btn-bg-color);
 
-    font-size: var(--b-font-size);
+    font-size: var(--btn-font-size);
     padding-block: 0.25rem;
     padding-inline: 0.5rem;
 
-    transition: transform var(--b-transition-timing);
+    transition: transform var(--btn-transition-timing);
 
     &.loading .inner {
         visibility: hidden;
     }
 
     &:hover:enabled {
-        filter: brightness(0.75);
+        background-color: var(--btn-bg-color-hover);
     }
 
     &:active:enabled {
-        background-color: var(--b-bg-color-active);
-
-        filter: none;
         transform: scale(0.96);
     }
 
@@ -86,36 +85,17 @@ button {
         cursor: not-allowed;
 
         &.disabled {
-            color: var(--b-color-disabled);
-            background-color: var(--b-bg-color-disabled);
+            color: var(--btn-color-disabled);
+            background-color: var(--btn-bg-color-disabled);
+            border-color: var(--btn-border-color-disabled);
         }
     }
 
-    &.outline {
-        --b-border-color: var(--b-color);
-
-        --b-bg-color: transparent;
-        --b-color: var(--color-soft);
-
-        --b-bg-color-active: unset;
-
-        &:hover:enabled {
-            filter: none;
-            background-color: var(--color-subtle);
-        }
-
-        &:active:enabled {
-            border-color: var(--color-accent);
-            background-color: var(--color-accent-subtle);
-        }
-
-        &:disabled {
-            &.disabled {
-                border-color: var(--b-bg-color-disabled);
-                color: var(--b-bg-color-disabled);
-                background-color: transparent;
-            }
-        }
+    &.secondary {
+        --btn-color: var(--clr-brand-text-dark);
+        --btn-bg-color: transparent;
+        --btn-bg-color-hover: var(--clr-brand-background-1);
+        --btn-border-color: var(--clr-brand-text-dark);
     }
 }
 
