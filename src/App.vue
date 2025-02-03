@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
-import Dropdown from './components/Dropdown/Dropdown.vue'
-import Button from './components/Button/Button.vue'
+import Dropdown from '@/components/Dropdown/Dropdown.vue'
+import Button from '@/components/Button/Button.vue'
 import { ref } from 'vue'
 
 const languages = [
@@ -47,8 +47,14 @@ const language = ref(languages[0])
 
         <Dropdown label="Language" v-model:active="language" :items="languages" :mah="120" />
         <Button>Test1</Button>
-        <Button disabled>test2</Button>
+        <Button disabled>Test2</Button>
         <Button variant="outline"> Test3 </Button>
+        <Button variant="outline" disabled> Test4 </Button>
+        <br />
+        <Button loading>Test1</Button>
+        <Button loading disabled>Test2</Button>
+        <Button loading variant="outline"> Test3 </Button>
+        <Button loading variant="outline" disabled> Test4 </Button>
     </main>
 </template>
 

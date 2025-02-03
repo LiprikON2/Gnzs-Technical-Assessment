@@ -1,14 +1,25 @@
 <script setup lang="ts">
-//
+import Spinner from '@/components/Spinner/Spinner.vue'
 
 defineProps<{
     variant?: 'default' | 'outline'
     onClick?: (e: Event) => void
+    loading?: boolean
+    disabled?: boolean
 }>()
 </script>
 
 <template>
-    <button :class="{ outline: variant === 'outline' }" @click="onClick"><slot /></button>
+    <button
+        :disabled="disabled || loading"
+        :class="{ outline: variant === 'outline', disabled, loading }"
+        @click="onClick"
+    >
+        <Spinner class="spinner" v-if="loading" />
+        <span class="inner">
+            <slot />
+        </span>
+    </button>
 </template>
 
 <style scoped>
@@ -53,6 +64,10 @@ button {
 
     transition: transform var(--b-transition-timing);
 
+    &.loading .inner {
+        visibility: hidden;
+    }
+
     &:hover:enabled {
         filter: brightness(0.75);
     }
@@ -68,10 +83,12 @@ button {
         outline: var(--outline-style);
     }
     &:disabled {
-        color: var(--b-color-disabled);
-        background-color: var(--b-bg-color-disabled);
-
         cursor: not-allowed;
+
+        &.disabled {
+            color: var(--b-color-disabled);
+            background-color: var(--b-bg-color-disabled);
+        }
     }
 
     &.outline {
@@ -91,6 +108,24 @@ button {
             border-color: var(--color-accent);
             background-color: var(--color-accent-subtle);
         }
+
+        &:disabled {
+            &.disabled {
+                border-color: var(--b-bg-color-disabled);
+                color: var(--b-bg-color-disabled);
+                background-color: transparent;
+            }
+        }
     }
+}
+
+.spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 70%;
+    height: 70%;
 }
 </style>
