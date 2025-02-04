@@ -157,22 +157,10 @@ input,
         color: var(--dd-color);
         background-color: var(--dd-input-color);
 
-        /* &::selection {
+        &::selection {
             background: transparent;
-        } */
+        }
     }
-
-    /* &::before {
-        content: '';
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        z-index: -1;
-        border-radius: 100% 100% 0 0;
-        background-color: var(--dd-color);
-
-        opacity: 0;
-    } */
 
     form[data-open='true'] &::before {
         animation: fadeIn ease var(--dd-anim-timing-in) forwards;
@@ -183,7 +171,6 @@ input,
 
     &::after {
         --padding: 6px;
-        /* content: url(@/assets/chevron-down.svg); */
         /* ref: https://stackoverflow.com/a/42317014 */
         content: '';
         -webkit-mask: url(@/assets/chevron-down.svg) no-repeat 50% 50%;
