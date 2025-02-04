@@ -1,9 +1,10 @@
 import { HttpService } from '@nestjs/axios'
-import { Injectable, Logger } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { catchError, firstValueFrom } from 'rxjs'
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios'
 
 import { TokenResponse } from './types'
+import { InvalidClientException, TokenRetrievalException } from './exceptions'
 
 interface RequestWithRetry extends AxiosRequestConfig {
     retried?: boolean
@@ -24,10 +25,22 @@ export class Oauth2Service {
     }
 
     async getApiClient(): Promise<AxiosInstance> {
-        if (!this.apiClient) {
-            this.apiClient = await this.createAuthorizedClient()
+        try {
+            if (!this.apiClient) {
+                this.apiClient = await this.createAuthorizedClient()
+            }
+            return this.apiClient
+        } catch (error) {
+            this.logger.error('Failed to get API client', error)
+            throw new HttpException(
+                {
+                    status: HttpStatus.INTERNAL_SERVER_ERROR,
+                    error: 'Authorization Failed',
+                    message: 'Failed to create authorized client'
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
         }
-        return this.apiClient
     }
 
     private async getToken(): Promise<TokenResponse> {
@@ -35,22 +48,36 @@ export class Oauth2Service {
         const authUrl = process.env.OAUTH_AUTH_URL
         const clientId = process.env.X_CLIENT_ID
 
-        const { data } = await firstValueFrom(
-            this.httpService
-                .get(authUrl, {
-                    headers: {
-                        'X-Client-Id': clientId
-                    }
-                })
-                .pipe(
-                    catchError((error: AxiosError) => {
-                        this.logger.error(error.response.data)
-                        throw 'An error happened!'
-                    })
-                )
-        )
+        if (!clientId) {
+            throw new InvalidClientException()
+        }
 
-        return data
+        try {
+            const { data } = await firstValueFrom(
+                this.httpService
+                    .get(authUrl, {
+                        headers: {
+                            'X-Client-Id': clientId
+                        }
+                    })
+                    .pipe(
+                        catchError((error: AxiosError) => {
+                            if (error.response?.status === 401) {
+                                throw new InvalidClientException()
+                            }
+
+                            throw new TokenRetrievalException(error.response?.data)
+                        })
+                    )
+            )
+            return data
+        } catch (error) {
+            if (error instanceof HttpException) {
+                throw error
+            }
+            this.logger.error('Unexpected error during token retrieval', error)
+            throw new TokenRetrievalException(error)
+        }
     }
 
     private async getValidToken(): Promise<TokenResponse> {
@@ -78,37 +105,54 @@ export class Oauth2Service {
     }
 
     private async createAuthorizedClient(): Promise<AxiosInstance> {
-        // ref: https://axios-http.com/docs/interceptors
+        try {
+            const token = await this.getValidToken()
+            const client = axios.create({
+                baseURL: this.ensureHttps(token.base_domain)
+            })
 
-        const client = axios.create()
+            // ref: https://axios-http.com/docs/interceptors
+            client.interceptors.request.use(async (config) => {
+                const token = await this.getValidToken()
 
-        client.interceptors.request.use(async (config) => {
-            const tokens = await this.getValidToken()
-            config.headers.Authorization = `Bearer ${tokens.access_token}`
-            return config
-        })
+                config.headers.Authorization = `Bearer ${token.access_token}`
+                return config
+            })
 
-        client.interceptors.response.use(
-            (response) => response,
-            async (error: AxiosError) => {
-                // Make a attempt to retry the original request with new tokens
-                const originalRequest = error.config as RequestWithRetry
+            client.interceptors.response.use(
+                (response) => response,
+                async (error: AxiosError) => {
+                    // Make a attempt to retry the original request with new tokens
+                    const originalRequest = error.config as RequestWithRetry
 
-                if (
-                    (error.response?.status === 401 || error.response?.status === 403) &&
-                    !originalRequest.retried
-                ) {
-                    originalRequest.retried = true
+                    if (
+                        (error.response?.status === 401 || error.response?.status === 403) &&
+                        !originalRequest.retried
+                    ) {
+                        originalRequest.retried = true
 
-                    await this.refreshToken()
+                        await this.refreshToken()
 
-                    return client(originalRequest)
+                        return client(originalRequest)
+                    }
+                    this.logger.error('Tried to refresh token and failed', error)
+                    return Promise.reject(error)
                 }
-
-                return Promise.reject(error)
+            )
+            return client
+        } catch (error) {
+            if (error instanceof HttpException) {
+                throw error
             }
-        )
+            throw new TokenRetrievalException(error)
+        }
+    }
 
-        return client
+    private ensureHttps(domain: string): string {
+        if (!domain.startsWith('http://') && !domain.startsWith('https://')) {
+            domain = `https://${domain}`
+        }
+        const url = new URL(domain)
+        return `https://${url.host}`
     }
 }
