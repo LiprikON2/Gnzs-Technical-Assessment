@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import type { Gap, Justify, Padding } from '@/types'
+import type { Align, Gap, Justify, Padding } from '@/types'
 
-interface GroupProps {
+interface StackProps {
+    align?: Align
     justify?: Justify
     gap?: Gap
     px?: Padding
     py?: Padding
 }
 
-const props = withDefaults(defineProps<GroupProps>(), {
+const props = withDefaults(defineProps<StackProps>(), {
+    align: 'stretch',
     justify: 'flex-start',
     gap: 'md',
     px: 'md',
@@ -30,6 +32,8 @@ const getSpacing = (value: Gap) => {
 <style scoped>
 div {
     display: flex;
+    flex-direction: column;
+    align-items: v-bind(align);
     justify-content: v-bind(justify);
 
     gap: v-bind(getSpacing(gap));

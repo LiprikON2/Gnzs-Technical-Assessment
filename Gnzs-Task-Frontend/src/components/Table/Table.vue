@@ -38,6 +38,7 @@ const getMinWidth = (value: TableProps['miw']) => {
 
 <style scoped>
 table {
+    width: 100%;
     border-collapse: collapse;
     min-width: v-bind(getMinWidth(miw));
 }

@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { defineStore } from 'pinia'
 
 export const amoCrmApi = {
@@ -19,16 +19,42 @@ export type Entity = {
     name: string
 }
 
+export type Status = 'pending' | 'error' | 'success'
+
+export type TError = AxiosError | null
+
 export const useAmoCrm = defineStore('amoCrm', {
     state: () => ({
         entities: [] as Entity[],
+        status: 'success' as Status,
+        error: null as TError,
     }),
     actions: {
         async addEntity(type: EntityType, name: string) {
-            const response = await axios.post<Omit<Entity, 'type'>>(amoCrmApi[type], { name })
+            try {
+                this.status = 'pending'
+                const response = await axios.post<Omit<Entity, 'type'>>(amoCrmApi[type], { name })
 
-            const entity = { ...response.data, type }
-            this.entities.push(entity)
+                const entity = { ...response.data, type }
+                this.entities.push(entity)
+                this.status = 'success'
+            } catch (error) {
+                console.warn('error', error)
+                this.status = 'error'
+
+                if (error instanceof AxiosError) {
+                    this.error = error
+                } else {
+                    this.error = new AxiosError(
+                        error instanceof Error ? error.message : 'Unknown error',
+                    )
+                }
+            }
         },
+    },
+    getters: {
+        isPending: ({ status }) => status === 'pending',
+        isSuccess: ({ status }) => status === 'success',
+        isError: ({ status }) => status === 'error',
     },
 })

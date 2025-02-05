@@ -64,7 +64,9 @@ button {
     padding-block: 0.25rem;
     padding-inline: 0.5rem;
 
-    transition: transform var(--btn-transition-timing);
+    transition:
+        background-color var(--btn-transition-timing) ease,
+        transform var(--btn-transition-timing) ease;
 
     &.loading .inner {
         visibility: hidden;

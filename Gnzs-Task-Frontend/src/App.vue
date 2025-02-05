@@ -5,6 +5,7 @@ import Dropdown from '@/components/Dropdown/Dropdown.vue'
 import Button from '@/components/Button/Button.vue'
 import Table from '@/components/Table/Table.vue'
 import Group from '@/components/Group/Group.vue'
+import Stack from '@/components/Stack/Stack.vue'
 import { isEntityType, useAmoCrm } from './stores'
 
 const amoCrmOptions = [
@@ -26,16 +27,30 @@ const handleAddEntity = () => {
 
 <template>
     <header>
-        <h1>amoCRM сделки. Для <span class="bold">вас</span>. <i>Сейчас</i>.</h1>
+        <h1>
+            amoCRM контакты.<br />
+            Сделки.<br />
+            Компании.<br />
+            Для <span class="bold">вас</span>.
+        </h1>
     </header>
 
     <main>
-        <Group>
-            <Dropdown label="Сущность" v-model:active="amoCrmOption" :items="amoCrmOptions" />
-            <Button @click="handleAddEntity">Add</Button>
-        </Group>
+        <Stack gap="xxxs" :px="0">
+            <Group :px="0" :py="0">
+                <Dropdown label="Тип" v-model:active="amoCrmOption" :items="amoCrmOptions" />
+                <Button
+                    @click="handleAddEntity"
+                    :disabled="amoCrmOption.value === 'blank'"
+                    :loading="amoCrm.isPending"
+                    >Add</Button
+                >
+            </Group>
 
-        <Table :miw="400">
+            <div v-if="amoCrm.isError" style="color: red">{{ amoCrm.error }}</div>
+        </Stack>
+
+        <Table>
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Тип</Table.Th>
