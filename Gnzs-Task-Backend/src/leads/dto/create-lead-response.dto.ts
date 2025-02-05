@@ -1,6 +1,6 @@
 import { IsNumber, IsString } from 'class-validator'
 
-export class LeadDto {
+export class CreateLeadResponseDto {
     @IsNumber()
     id: number
 

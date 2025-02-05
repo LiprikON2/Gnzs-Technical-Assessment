@@ -49,6 +49,7 @@ export class Oauth2Service {
         const clientId = process.env.X_CLIENT_ID
 
         if (!clientId) {
+            this.logger.error('The value of environment variable X_CLIENT_ID must be set')
             throw new InvalidClientException()
         }
 

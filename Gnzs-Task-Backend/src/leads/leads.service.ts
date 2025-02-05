@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common'
 
 import { Oauth2Service } from 'src/oauth2/oauth2.service'
-import { CreateLeadDto, LeadDto } from './dto'
+import { CreateLeadRequestDto, CreateLeadResponseDto, CreateLeadResponseExternalDto } from './dto'
 import { plainToInstance } from 'class-transformer'
 import { validateOrReject } from 'class-validator'
 
@@ -11,13 +11,20 @@ export class LeadsService {
 
     constructor(private readonly oauth2Service: Oauth2Service) {}
 
-    async create(createLeadDto: CreateLeadDto): Promise<LeadDto> {
+    async create(createLeadDto: CreateLeadRequestDto): Promise<CreateLeadResponseDto> {
         try {
             const apiClient = await this.oauth2Service.getApiClient()
-            const response = await apiClient.post('/api/v4/leads', createLeadDto)
+            const response = await apiClient.post('/api/v4/leads/complex', createLeadDto)
 
-            const lead = plainToInstance(LeadDto, response.data)
+            const leadExternal = plainToInstance(CreateLeadResponseExternalDto, response.data, {
+                enableImplicitConversion: true
+            }) as unknown as CreateLeadResponseExternalDto[]
+            await validateOrReject(leadExternal)
 
+            const lead = {
+                id: leadExternal[0].id,
+                name: createLeadDto.name[0] ?? ''
+            }
             await validateOrReject(lead)
 
             return lead
