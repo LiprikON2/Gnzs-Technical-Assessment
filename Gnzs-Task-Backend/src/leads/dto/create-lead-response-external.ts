@@ -1,22 +1,43 @@
-import { ArrayMinSize, IsArray, IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator'
+import { Type } from 'class-transformer'
+import { IsString, IsNumber, ValidateNested, IsArray, ArrayMinSize } from 'class-validator'
 
-export class CreateLeadResponseExternalDto {
+export class LinkDto {
+    @IsString()
+    href: string
+}
+
+export class LinksDto {
+    @ValidateNested()
+    @Type(() => LinkDto)
+    self: LinkDto
+}
+
+export class LeadDto {
     @IsNumber()
     id: number
 
-    @IsOptional()
-    @IsNumber()
-    contact_id: number | null
+    @IsString()
+    request_id: string
 
-    @IsOptional()
-    @IsNumber()
-    company_id: number | null
+    @ValidateNested()
+    @Type(() => LinksDto)
+    _links: LinksDto
+}
 
+export class EmbeddedDto {
     @IsArray()
-    @IsString({ each: true })
     @ArrayMinSize(1)
-    request_id: string[]
+    @ValidateNested({ each: true })
+    @Type(() => LeadDto)
+    leads: LeadDto[]
+}
 
-    @IsBoolean()
-    merged: boolean
+export class CreateLeadResponseExternalDto {
+    @ValidateNested()
+    @Type(() => LinksDto)
+    _links: LinksDto
+
+    @ValidateNested()
+    @Type(() => EmbeddedDto)
+    _embedded: EmbeddedDto
 }
