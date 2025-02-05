@@ -30,10 +30,12 @@ export const useAmoCrm = defineStore('amoCrm', {
         error: null as TError,
     }),
     actions: {
-        async addEntity(type: EntityType, name: string) {
+        async addEntity(type: EntityType, name?: string) {
             try {
                 this.status = 'pending'
-                const response = await axios.post<Omit<Entity, 'type'>>(amoCrmApi[type], { name })
+                const response = await axios.post<Omit<Entity, 'type'>>(amoCrmApi[type], {
+                    ...(name && { name }),
+                })
 
                 const entity = { ...response.data, type }
                 this.entities.push(entity)

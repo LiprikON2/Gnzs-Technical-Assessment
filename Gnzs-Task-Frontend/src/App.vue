@@ -20,7 +20,7 @@ const amoCrm = useAmoCrm()
 
 const handleAddEntity = () => {
     if (isEntityType(amoCrmOption.value.value)) {
-        amoCrm.addEntity(amoCrmOption.value.value, 'Test123')
+        amoCrm.addEntity(amoCrmOption.value.value)
     }
 }
 </script>
@@ -37,13 +37,13 @@ const handleAddEntity = () => {
 
     <main>
         <Stack gap="xxxs" :px="0">
-            <Group :px="0" :py="0">
+            <Group :px="0" :py="0" justify="space-between">
                 <Dropdown label="Тип" v-model:active="amoCrmOption" :items="amoCrmOptions" />
                 <Button
                     @click="handleAddEntity"
                     :disabled="amoCrmOption.value === 'blank'"
                     :loading="amoCrm.isPending"
-                    >Add</Button
+                    >Добавить</Button
                 >
             </Group>
 
