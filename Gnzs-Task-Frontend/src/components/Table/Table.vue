@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { provide } from 'vue'
-
 import TableThead from './components/TableThead.vue'
 import TableTbody from './components/TableTbody.vue'
 import TableTr from './components/TableTr.vue'
@@ -14,6 +12,22 @@ defineOptions({
     Th: TableTh,
     Td: TableTd,
 })
+
+interface TableProps {
+    /* min-width of table */
+    miw?: string | number
+}
+
+const props = withDefaults(defineProps<TableProps>(), {
+    miw: undefined,
+})
+
+const getMinWidth = (value: TableProps['miw']) => {
+    if (Number.isInteger(value)) {
+        return `calc(0.0625rem * ${value})`
+    }
+    return value
+}
 </script>
 
 <template>
@@ -22,4 +36,18 @@ defineOptions({
     </table>
 </template>
 
-<style scoped></style>
+<style scoped>
+table {
+    border-collapse: collapse;
+    min-width: v-bind(getMinWidth(miw));
+}
+
+:deep(th) {
+    text-align: start;
+}
+
+:deep(th),
+:deep(td) {
+    padding-inline: var(--spacing-sm);
+}
+</style>

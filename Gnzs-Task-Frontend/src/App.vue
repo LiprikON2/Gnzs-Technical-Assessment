@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import Dropdown from '@/components/Dropdown/Dropdown.vue'
 import Button from '@/components/Button/Button.vue'
 import Table from '@/components/Table/Table.vue'
+import Group from '@/components/Group/Group.vue'
 import { isEntityType, useAmoCrm } from './stores'
 
 const amoCrmOptions = [
@@ -29,22 +30,24 @@ const handleAddEntity = () => {
     </header>
 
     <main>
-        <Dropdown label="Сущность" v-model:active="amoCrmOption" :items="amoCrmOptions" />
-        <Button @click="handleAddEntity">Add</Button>
+        <Group>
+            <Dropdown label="Сущность" v-model:active="amoCrmOption" :items="amoCrmOptions" />
+            <Button @click="handleAddEntity">Add</Button>
+        </Group>
 
-        <Table>
+        <Table :miw="400">
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Тип</Table.Th>
-                    <Table.Th>Идентификатор</Table.Th>
                     <Table.Th>Название</Table.Th>
+                    <Table.Th>Идентификатор</Table.Th>
                 </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
                 <Table.Tr v-for="entity in amoCrm.entities" :key="entity.type + entity.id">
                     <Table.Td>{{ entity.type }}</Table.Td>
-                    <Table.Td>{{ entity.id }}</Table.Td>
                     <Table.Td>{{ entity.name }}</Table.Td>
+                    <Table.Td>{{ entity.id }}</Table.Td>
                 </Table.Tr>
             </Table.Tbody>
         </Table>
