@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import Dropdown from '@/components/Dropdown/Dropdown.vue'
 import Button from '@/components/Button/Button.vue'
 import Table from '@/components/Table/Table.vue'
+import { isEntityType, useAmoCrm } from './stores'
 
 const amoCrmOptions = [
     { label: 'Не выбрано', value: 'blank' },
@@ -13,47 +14,37 @@ const amoCrmOptions = [
 ]
 const amoCrmOption = ref(amoCrmOptions[0])
 
-const loading = ref(false)
+const amoCrm = useAmoCrm()
 
-const handleMockLoad = () => {
-    loading.value = true
-    setTimeout(() => {
-        loading.value = false
-    }, 2000)
+const handleAddEntity = () => {
+    if (isEntityType(amoCrmOption.value.value)) {
+        amoCrm.addEntity(amoCrmOption.value.value, 'Test123')
+    }
 }
-
-const elements = [{ position: 1, name: 'Hydrogen', symbol: 'H', mass: 1.008 }]
 </script>
 
 <template>
     <header>
-        <h1 class="green">amoCRM сделки. Для <span class="bold">вас</span>. <i>Сейчас</i>.</h1>
+        <h1>amoCRM сделки. Для <span class="bold">вас</span>. <i>Сейчас</i>.</h1>
     </header>
 
     <main>
         <Dropdown label="Сущность" v-model:active="amoCrmOption" :items="amoCrmOptions" />
-        <Button @click="handleMockLoad" :loading="loading">Test1</Button>
-        <Button @click="handleMockLoad" :loading="loading" disabled>Test2</Button>
-        <Button @click="handleMockLoad" :loading="loading" variant="secondary"> Test3 </Button>
-        <Button @click="handleMockLoad" :loading="loading" variant="secondary" disabled>
-            Test4
-        </Button>
+        <Button @click="handleAddEntity">Add</Button>
 
         <Table>
             <Table.Thead>
                 <Table.Tr>
-                    <Table.Th>Element position</Table.Th>
-                    <Table.Th>Element name</Table.Th>
-                    <Table.Th>Symbol</Table.Th>
-                    <Table.Th>Atomic mass</Table.Th>
+                    <Table.Th>Тип</Table.Th>
+                    <Table.Th>Идентификатор</Table.Th>
+                    <Table.Th>Название</Table.Th>
                 </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-                <Table.Tr v-for="element in elements" :key="element.name">
-                    <Table.Td>{{ element.position }}</Table.Td>
-                    <Table.Td>{{ element.name }}</Table.Td>
-                    <Table.Td>{{ element.symbol }}</Table.Td>
-                    <Table.Td>{{ element.mass }}</Table.Td>
+                <Table.Tr v-for="entity in amoCrm.entities" :key="entity.type + entity.id">
+                    <Table.Td>{{ entity.type }}</Table.Td>
+                    <Table.Td>{{ entity.id }}</Table.Td>
+                    <Table.Td>{{ entity.name }}</Table.Td>
                 </Table.Tr>
             </Table.Tbody>
         </Table>
