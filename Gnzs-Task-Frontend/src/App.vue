@@ -33,7 +33,6 @@ const language = ref(languages[0])
 const loading = ref(false)
 
 const handleMockLoad = () => {
-    console.log('handleMockLoad')
     loading.value = true
     setTimeout(() => {
         loading.value = false
