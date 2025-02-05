@@ -1,8 +1,6 @@
-import { ArrayMinSize, IsArray, IsString } from 'class-validator'
+import { IsString } from 'class-validator'
 
 export class CreateLeadRequestDto {
-    @IsArray()
-    @IsString({ each: true })
-    @ArrayMinSize(0)
+    @IsString()
     name: string[]
 }

@@ -3,12 +3,7 @@ import { plainToInstance } from 'class-transformer'
 import { validateOrReject } from 'class-validator'
 
 import { Oauth2Service } from 'src/oauth2/oauth2.service'
-import {
-    FindLeadResponseExternalDto,
-    CreateLeadRequestDto,
-    CreateLeadResponseDto,
-    CreateLeadResponseExternalDto
-} from './dto'
+import { FindLeadResponseExternalDto, CreateLeadRequestDto, CreateLeadResponseExternalDto } from './dto'
 
 @Injectable()
 export class LeadsService {
@@ -16,26 +11,18 @@ export class LeadsService {
 
     constructor(private readonly oauth2Service: Oauth2Service) {}
 
-    async create(createLeadDto: CreateLeadRequestDto): Promise<CreateLeadResponseDto> {
+    async create(createLeadDto: CreateLeadRequestDto): Promise<FindLeadResponseExternalDto> {
         try {
             const apiClient = await this.oauth2Service.getApiClient()
-            const createResponse = await apiClient.post('/api/v4/leads/complex', createLeadDto)
+            const createResponse = await apiClient.post('/api/v4/leads/complex', [createLeadDto])
 
-            const createLeadExternal = plainToInstance(CreateLeadResponseExternalDto, createResponse.data, {
+            const [createLeadExternal] = plainToInstance(CreateLeadResponseExternalDto, createResponse.data, {
                 enableImplicitConversion: true
             }) as unknown as CreateLeadResponseExternalDto[]
 
             await validateOrReject(createLeadExternal)
 
-            const findLeadExternal = await this.findOne(createLeadExternal[0].id)
-
-            const lead = {
-                id: findLeadExternal.id,
-                name: findLeadExternal.name
-            }
-            await validateOrReject(lead)
-
-            return lead
+            return await this.findOne(createLeadExternal.id)
         } catch (error) {
             this.logger.error('Failed to create lead', error)
 
