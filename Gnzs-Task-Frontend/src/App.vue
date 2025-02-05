@@ -27,11 +27,11 @@ const handleAddEntity = () => {
 
 <template>
     <header>
-        <h1>
-            amoCRM контакты.<br />
-            Сделки.<br />
+        <h1 style="font-size: var(--font-size-xxxxl)">
             Компании.<br />
-            Для <span class="bold">вас</span>.
+            Контакты.<br />
+            Сделки.<br />
+            amoCRM.
         </h1>
     </header>
 
@@ -59,10 +59,17 @@ const handleAddEntity = () => {
                 </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-                <Table.Tr v-for="entity in amoCrm.entities" :key="entity.type + entity.id">
-                    <Table.Td>{{ entity.type }}</Table.Td>
-                    <Table.Td>{{ entity.name }}</Table.Td>
-                    <Table.Td>{{ entity.id }}</Table.Td>
+                <template v-for="entity in amoCrm.entities" :key="entity.type + entity.id">
+                    <Table.Tr>
+                        <Table.Td>{{ entity.type }}</Table.Td>
+                        <Table.Td>{{ entity.name }}</Table.Td>
+                        <Table.Td>{{ entity.id }}</Table.Td>
+                    </Table.Tr>
+                </template>
+                <Table.Tr v-if="!amoCrm.entities.length">
+                    <Table.Td colspan="3"
+                        ><Group justify="center" style="font-style: italic">Пусто.</Group></Table.Td
+                    >
                 </Table.Tr>
             </Table.Tbody>
         </Table>

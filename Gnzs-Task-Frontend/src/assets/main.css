@@ -60,5 +60,7 @@ button:focus:not(:focus-visible) {
         display: grid;
         grid-template-columns: 1fr 1fr;
         padding: 0 2rem;
+        padding-top: 5rem;
+        padding-left: 10vw;
     }
 }
