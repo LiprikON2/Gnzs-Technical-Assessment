@@ -1,34 +1,17 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
 import Dropdown from '@/components/Dropdown/Dropdown.vue'
 import Button from '@/components/Button/Button.vue'
 import Table from '@/components/Table/Table.vue'
-import { ref } from 'vue'
 
-const languages = [
-    { label: 'Russian', value: 'russian' },
-    { label: 'English', value: 'english' },
-    { label: 'Italian', value: 'italian' },
-    { label: 'German', value: 'german' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
-    { label: 'Korean', value: 'korean' },
+const amoCrmOptions = [
+    { label: 'Не выбрано', value: 'blank' },
+    { label: 'Сделка', value: 'lead' },
+    { label: 'Контакт', value: 'contact' },
+    { label: 'Компания', value: 'company' },
 ]
-const language = ref(languages[0])
+const amoCrmOption = ref(amoCrmOptions[0])
 
 const loading = ref(false)
 
@@ -44,11 +27,11 @@ const elements = [{ position: 1, name: 'Hydrogen', symbol: 'H', mass: 1.008 }]
 
 <template>
     <header>
-        <h1 class="green">amoCRM deals. For <span class="bold">you</span>. <i>Now</i>.</h1>
+        <h1 class="green">amoCRM сделки. Для <span class="bold">вас</span>. <i>Сейчас</i>.</h1>
     </header>
 
     <main>
-        <Dropdown label="Language" v-model:active="language" :items="languages" :mah="120" />
+        <Dropdown label="Сущность" v-model:active="amoCrmOption" :items="amoCrmOptions" />
         <Button @click="handleMockLoad" :loading="loading">Test1</Button>
         <Button @click="handleMockLoad" :loading="loading" disabled>Test2</Button>
         <Button @click="handleMockLoad" :loading="loading" variant="secondary"> Test3 </Button>

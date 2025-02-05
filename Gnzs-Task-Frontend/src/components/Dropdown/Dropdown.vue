@@ -48,8 +48,8 @@ const value = computed(() => `${props.label}: ${active.value.label}`)
 </script>
 
 <template>
-    <form
-        @submit.prevent
+    <div
+        class="root"
         @keydown.prevent.enter="toggleDropdown({ selectOnClose: true, focusOnOpen: true })"
         @keydown.prevent.space="toggleDropdown({ focusOnOpen: true })"
         @keydown.prevent.esc="closeDropdown()"
@@ -100,11 +100,11 @@ const value = computed(() => `${props.label}: ${active.value.label}`)
                 </ul>
             </div>
         </div>
-    </form>
+    </div>
 </template>
 
 <style scoped>
-form {
+.root {
     --dd-padding: var(--spacing-xxs);
     --dd-border-radius: var(--radius-default);
     --dd-font-size: var(--font-size-sm);
@@ -125,7 +125,7 @@ form {
     }
 }
 
-form {
+.root {
     max-width: fit-content;
     position: relative;
     z-index: 1;
@@ -145,7 +145,7 @@ input,
     position: relative;
     z-index: 10;
     border-radius: var(--dd-border-radius);
-    outline-offset: calc(-1 * var(--outline-width));
+    outline-offset: calc(-0.5 * var(--outline-width));
 
     input {
         width: 100%;
@@ -162,10 +162,10 @@ input,
         }
     }
 
-    form[data-open='true'] &::before {
+    .root[data-open='true'] &::before {
         animation: fadeIn ease var(--dd-anim-timing-in) forwards;
     }
-    form[data-open='false'] &::before {
+    .root[data-open='false'] &::before {
         animation: fadeOut ease var(--dd-anim-timing-out) forwards;
     }
 
@@ -192,7 +192,7 @@ input,
         }
     }
 
-    form[data-open='true'] &::after {
+    .root[data-open='true'] &::after {
         transform: rotate(180deg);
     }
 }
@@ -209,10 +209,10 @@ input,
 
     opacity: 0;
 
-    form[data-open='true'] & {
+    .root[data-open='true'] & {
         animation: fadeIn ease var(--dd-anim-timing-out) forwards;
     }
-    form[data-open='false'] & {
+    .root[data-open='false'] & {
         animation: fadeOut ease var(--dd-anim-timing-out) forwards;
     }
 }
@@ -225,12 +225,12 @@ input,
     overflow-x: clip;
     overflow-y: auto;
 
-    form[data-open='true'] & {
+    .root[data-open='true'] & {
         pointer-events: unset;
         animation: fadeInMoveY ease var(--dd-anim-timing-out) forwards;
         opacity: 1;
     }
-    form[data-open='false'] & {
+    .root[data-open='false'] & {
         pointer-events: none;
         animation: fadeOutMoveY ease var(--dd-anim-timing-out) forwards;
         opacity: 0;
@@ -268,11 +268,11 @@ li {
         outline-offset: calc(-1 * var(--outline-width));
     }
 
-    form[data-open='true'] & {
+    .root[data-open='true'] & {
         animation: fadeInMoveX ease var(--dd-anim-timing-out) forwards;
         animation-delay: calc(var(--index) * var(--dd-anim-timing-out) / var(--count));
     }
-    form[data-open='false'] & {
+    .root[data-open='false'] & {
         animation: fadeOut ease var(--dd-anim-timing-in) forwards;
     }
 }
