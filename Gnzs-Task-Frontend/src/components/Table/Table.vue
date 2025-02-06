@@ -14,15 +14,18 @@ defineOptions({
 })
 
 interface TableProps {
+    /* max-width of table */
+    maw?: string | number
     /* min-width of table */
     miw?: string | number
 }
 
 const props = withDefaults(defineProps<TableProps>(), {
+    maw: undefined,
     miw: undefined,
 })
 
-const getMinWidth = (value: TableProps['miw']) => {
+const getWidth = (value: TableProps['miw']) => {
     if (Number.isInteger(value)) {
         return `calc(0.0625rem * ${value})`
     }
@@ -40,7 +43,11 @@ const getMinWidth = (value: TableProps['miw']) => {
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: v-bind(getMinWidth(miw));
+    max-width: v-bind(getWidth(maw));
+    min-width: v-bind(getWidth(miw));
+
+    background-color: var(--clr-brand-background-0);
+    border-radius: var(--radius-default);
 }
 
 :deep(th) {

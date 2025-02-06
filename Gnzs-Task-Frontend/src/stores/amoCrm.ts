@@ -14,6 +14,7 @@ export function isEntityType(entityTypeStr: unknown): entityTypeStr is EntityTyp
 }
 
 export type Entity = {
+    typeLabel: string
     type: EntityType
     id: number
     name: string
@@ -30,14 +31,14 @@ export const useAmoCrm = defineStore('amoCrm', {
         error: null as TError,
     }),
     actions: {
-        async addEntity(type: EntityType, name?: string) {
+        async addEntity(type: EntityType, typeLabel: string, name?: string) {
             try {
                 this.status = 'pending'
                 const response = await axios.post<Omit<Entity, 'type'>>(amoCrmApi[type], {
                     ...(name && { name }),
                 })
 
-                const entity = { ...response.data, type }
+                const entity = { ...response.data, type, typeLabel }
                 this.entities.push(entity)
                 this.status = 'success'
             } catch (error) {

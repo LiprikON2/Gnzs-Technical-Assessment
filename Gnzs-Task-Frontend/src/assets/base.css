@@ -69,7 +69,7 @@
     --clr-brand-accent-border: #4c8bf7;
     --clr-brand-accent-hover: #265884;
     --clr-brand-disabled: #fcfcfc;
-    --clr-brand-text-disabled: #4e4e4e;
+    --clr-brand-text-disabled: #818181;
     --clr-brand-hover: #ededed;
     --clr-brand-border: #c1c1c1;
 
@@ -108,7 +108,7 @@
 
     --outline-width: 2px;
     --outline-style: var(--outline-width) solid var(--clr-brand-accent);
-    --section-gap: 160px;
+    --section-gap: 260px;
 }
 
 *,
@@ -122,7 +122,7 @@
 body {
     min-height: 100vh;
     color: var(--clr-brand-text-dark);
-    background: var(--clr-brand-background-0);
+    background: var(--clr-brand-accent);
     transition:
         color 0.5s,
         background-color 0.5s;

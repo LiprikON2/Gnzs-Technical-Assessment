@@ -25,7 +25,7 @@ defineProps<{
 <style scoped>
 button {
     --btn-color: var(--clr-brand-text-light);
-    --btn-color-disabled: var(--clr-brand-text-dark);
+    --btn-color-disabled: var(--clr-brand-text-disabled);
 
     --btn-bg-color: var(--clr-brand-accent);
     --btn-bg-color-disabled: var(--clr-brand-disabled);
