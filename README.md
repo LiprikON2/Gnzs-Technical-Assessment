@@ -1,7 +1,7 @@
 # Тестовое задание от Генезис - amoCRM интеграция
 
 
-![](https://i.imgur.com/jJ4AJVH.png)
+![](https://i.imgur.com/06q0zjV.png)
 
 
 ## Задание
