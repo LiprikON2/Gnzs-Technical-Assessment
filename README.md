@@ -1,7 +1,9 @@
 # Тестовое задание от Генезис - amoCRM интеграция
 
+Демо (без бекэнда) - https://gnzs-task-frontend.netlify.app
 
 ![](https://i.imgur.com/06q0zjV.png)
+
 
 
 ## Задание
