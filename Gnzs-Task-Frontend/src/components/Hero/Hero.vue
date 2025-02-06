@@ -91,6 +91,9 @@ main > * {
 }
 
 @media (min-width: 1024px) {
+    main {
+        padding-left: 4rem;
+    }
     main > * {
         margin-left: unset;
     }
